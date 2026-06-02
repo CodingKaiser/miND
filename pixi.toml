@@ -17,4 +17,6 @@ aria2 = "*"
 
 [tasks]
 exec_workflow = "bash run.sh"
-build-repository = "bash repository/build.sh"
+[tasks.build-repository]
+cmd = "bash build.sh"
+cwd = "repository"
