@@ -16,5 +16,5 @@ graphviz = "2.42.*"
 aria2 = "*"
 
 [tasks]
-run = "bash run.sh"
+exec_workflow = "bash run.sh"
 build-repository = "bash repository/build.sh"
