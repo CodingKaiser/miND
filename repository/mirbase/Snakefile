@@ -111,7 +111,10 @@ rule downloadRemoteFiles:
             fileNamePath = os.path.split(str(remoteFiles[i]))
             filePath = fileNamePath[0]
             fileName = fileNamePath[1]
-            cmd = "aria2c -x10 -s10 '%s/%s/%s' -o '%s' -d '%s'" % (config["baseUrl"], config["version"], fileName, fileName, filePath)
+            # miRBase serves uncompressed .fa under /download (no version dir), so fetch the
+            # .fa and gzip it locally to produce the .fa.gz the downstream rules expect.
+            srcName = fileName[:-3]
+            cmd = "aria2c -x10 -s10 '%s/%s' -o '%s' -d '%s' && gzip -f '%s/%s'" % (config["baseUrl"], srcName, srcName, filePath, filePath, srcName)
             os.system(cmd)
 
 #rule downloadFiles:
