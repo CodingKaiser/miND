@@ -2,39 +2,43 @@
 
 source ~/.bashrc
 
-if [[ -f "~/miniconda3/etc/profile.d/conda.sh" ]]; then
-    source ~/miniconda3/etc/profile.d/conda.sh
+# When run via `pixi run build-repository`, snakemake/mamba/aria2c are already
+# provided by the pixi environment, so the conda bootstrap below is skipped.
+if ! hash snakemake 2>/dev/null; then
+  if [[ -f "~/miniconda3/etc/profile.d/conda.sh" ]]; then
+      source ~/miniconda3/etc/profile.d/conda.sh
+  fi
+
+  # run snakemake and archive the workflow
+  if [[ $(type -P "conda") ]]; then
+    printf "Conda path is set\n"
+  else
+    printf "Conda path no set, adding to PATH variable\n"
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+    bash ~/miniconda.sh -u -b
+    export PATH="$HOME/miniconda3/bin:$PATH"
+    ~/miniconda3/bin/conda init
+  fi
+
+  if ! [[ $(type -P "conda") ]]; then
+    printf "Conda binary not found in path\nexiting\n"
+    exit 1
+  fi
+
+  source ~/miniconda3/etc/profile.d/conda.sh
+
+  ENVNAME="mind-repository-env"
+
+  if conda env list | awk '{print $1}' | grep -xqFe "$ENVNAME"; then
+     source activate $ENVNAME
+  else
+     echo "Creating conda environment $ENVNAME"
+     conda create -y --name $ENVNAME
+     conda activate $ENVNAME
+     conda install -y mamba -c conda-forge
+  fi;
+  echo "Current conda env: $CONDA_DEFAULT_ENV"
 fi
-
-# run snakemake and archive the workflow
-if [[ $(type -P "conda") ]]; then
-  printf "Conda path is set\n"
-else
-  printf "Conda path no set, adding to PATH variable\n"
-  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-  bash ~/miniconda.sh -u -b
-  export PATH="$HOME/miniconda3/bin:$PATH"
-  ~/miniconda3/bin/conda init
-fi
-
-if ! [[ $(type -P "conda") ]]; then
-  printf "Conda binary not found in path\nexiting\n"
-  exit 1
-fi
-
-source ~/miniconda3/etc/profile.d/conda.sh
-
-ENVNAME="mind-repository-env"
-
-if conda env list | awk '{print $1}' | grep -xqFe "$ENVNAME"; then
-   source activate $ENVNAME
-else
-   echo "Creating conda environment $ENVNAME"
-   conda create -y --name $ENVNAME
-   conda activate $ENVNAME
-   conda install -y mamba -c conda-forge
-fi;
-echo "Current conda env: $CONDA_DEFAULT_ENV"
 
 if hash snakemake 2>/dev/null; then
   echo "snakemake command found"
