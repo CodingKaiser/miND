@@ -86,4 +86,4 @@ speciesData:
     txid: '10141'
 
 repoPath: "repository/data" # select the directory (relative or absolute) where reference data (genomes, miRBase, etc) is located
-condaPath: "envs/tmp" # select the directory where conda should store the created environments. this can and should be shared between multiple installations of the miND pipeline, so an absolute path is recommended
+condaPath: ".pixi/snakemake-envs" # select the directory where conda should store the created environments. this can and should be shared between multiple installations of the miND pipeline, so an absolute path is recommended

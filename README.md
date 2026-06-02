@@ -15,7 +15,7 @@ miND is a small RNA-seq analysis pipeline for microRNA biomarker discovery studi
 ## Requirements
 
 - Linux (developed and tested on Debian)
-- [Conda](https://docs.conda.io/) (Miniconda or Anaconda)
+- [pixi](https://pixi.sh/) (recommended) or [Conda](https://docs.conda.io/) (Miniconda or Anaconda)
 - Hardware: 4+ CPU cores, 8 GB RAM (scales with available resources)
 
 ## Installation
@@ -26,19 +26,26 @@ A step-by-step installation and setup guide, including the preparation of the re
 
 The protocol describes setup on an AWS EC2 instance but applies to any Linux system. Only OS-specific commands (e.g., package installation via `apt`) need to be adapted for other distributions.
 
-### Quick overview
+### Quick overview (pixi)
 
 ```bash
+# Install pixi (one-time)
+curl -fsSL https://pixi.sh/install.sh | bash
+
 # Clone the repository
 git clone https://github.com/TAmiRNA/miND.git
 cd miND
 
-# Install conda environments (handled automatically by Snakemake)
+# Install the workspace environment (snakemake, mamba, graphviz, aria2, ...)
+pixi install
+
 # Build the reference data repository (run once)
-bash repository/build.sh
+pixi run build-repository
 
 # The pipeline is now ready to use
 ```
+
+Per-rule Snakemake conda environments (defined in `envs/*.yml`) are created on first run under `.pixi/snakemake-envs/` (see `condaPath` in `config.yaml`).
 
 ## Usage
 
@@ -55,7 +62,11 @@ Copy `SampleContrastSheet.example.xlsx` and fill in three sheets:
 Edit `config.yaml` to set paths to your data and contrast sheet, then run:
 
 ```bash
-bash run.sh
+# Using pixi (recommended)
+pixi run run -i path/to/SampleContrastSheet.xlsx
+
+# Or, if you manage the workspace environment yourself:
+bash run.sh -i path/to/SampleContrastSheet.xlsx
 ```
 
 The pipeline will process all samples and generate the HTML report in the output directory.

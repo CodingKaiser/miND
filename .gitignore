@@ -1,4 +1,5 @@
 .snakemake
+.pixi
 envs/conda/*
 envs/tmp
 repository/envs/tmp
