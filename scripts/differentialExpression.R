@@ -135,6 +135,19 @@ if (nrow(sampleSheetContrast) > 0) {
         pairing <<- factor(pairingVector)
         design <- model.matrix(~0 + pairing + group, data = dge$samples)
         contrastVector <- c(rep(0, ncol(design)-1), -1) # make a contrastVector that selects the last column of the design matrix as contrast of interest
+
+        # the grouping factor is meant to be a blocking variable that is crossed with the
+        # contrast groups (e.g. donor, batch). if it is instead confounded with the groups
+        # (each level sits in only one group), the paired design is rank-deficient and glmFit
+        # aborts. detect that and fall back to an unpaired analysis instead of crashing.
+        if(!limma::is.fullrank(design)) {
+          warning("Grouping Factor '", contrastLine$`Grouping Factor`,
+                  "' is confounded with the contrast groups; the paired design matrix is not of full rank. ",
+                  "Falling back to an unpaired analysis for ",
+                  contrastLine$GroupA, " vs ", contrastLine$GroupB, ".")
+          contrastVector <- c(1, -1)
+          design <- model.matrix(~0 + group, data = dge$samples)
+        }
       } else {
         # no pairing
         contrastVector <- c(1, -1)
