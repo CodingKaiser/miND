@@ -17,3 +17,4 @@ scripts/report_files
 .DS_Store
 ._*
 ~$*
+input_data/
