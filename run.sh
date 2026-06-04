@@ -168,8 +168,9 @@ else
   mamba install -y -c conda-forge aria2
 fi
 
-# read condaPath from config file
+# read paths from config file
 CONDA_PREFIX=`grep 'condaPath:' config.yaml | tail -n1 | awk '{gsub(/"/, "", $2); print $2}'`
+TMP_DIR=`grep 'tmpDir:' config.yaml | tail -n1 | awk '{gsub(/"/, "", $2); print $2}'`
 
 # check command line arguments
 cmdlineargs="--config sampleSheet='${INPUT}'"
@@ -181,8 +182,8 @@ if [[ "${KEEPTMP}" == "YES" ]]; then
 fi
 
 echo "Unlocking snakemake"
-snakemake --unlock $cmdlineargs
+snakemake --unlock --tmpdir=$TMP_DIR $cmdlineargs
 echo "Running pipeline"
-snakemake --use-conda --conda-prefix=$CONDA_PREFIX --conda-frontend=mamba --restart-times=1 --cores $cmdlineargs
+snakemake --use-conda --conda-prefix=$CONDA_PREFIX --conda-frontend=mamba --restart-times=1 --cores --tmpdir=$TMP_DIR $cmdlineargs
 
 exit 0

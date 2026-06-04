@@ -87,3 +87,4 @@ speciesData:
 
 repoPath: "repository/data" # select the directory (relative or absolute) where reference data (genomes, miRBase, etc) is located
 condaPath: ".pixi/snakemake-envs" # select the directory where conda should store the created environments. this can and should be shared between multiple installations of the miND pipeline, so an absolute path is recommended
+tmpDir: "/tmp" # directory for Snakemake temporary files; change to e.g. /scratch/user/tmp on HPC systems
