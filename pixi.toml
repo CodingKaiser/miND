@@ -1,6 +1,6 @@
 [workspace]
 name = "mind"
-version = "1.3.0"
+version = "1.4.0"
 description = "miND - miRNA NGS Discovery pipeline (workspace environment)"
 channels = ["bioconda", "conda-forge"]
 platforms = ["linux-64"]

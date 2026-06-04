@@ -181,9 +181,14 @@ if [[ "${KEEPTMP}" == "YES" ]]; then
  cmdlineargs="${cmdlineargs} --notemp"
 fi
 
+# Snakemake 7 has no --tmpdir flag; it derives its temp directory (and the
+# resources.tmpdir default) from the TMPDIR environment variable instead.
+export TMPDIR=$TMP_DIR
+mkdir -p "$TMP_DIR"
+
 echo "Unlocking snakemake"
-snakemake --unlock --tmpdir=$TMP_DIR $cmdlineargs
+snakemake --unlock $cmdlineargs
 echo "Running pipeline"
-snakemake --use-conda --conda-prefix=$CONDA_PREFIX --conda-frontend=mamba --restart-times=1 --cores --tmpdir=$TMP_DIR $cmdlineargs
+snakemake --use-conda --conda-prefix=$CONDA_PREFIX --conda-frontend=mamba --restart-times=1 --cores $cmdlineargs
 
 exit 0
