@@ -46,7 +46,8 @@ for (i in 4:length(args)) {
   curDataSet <- file_path_sans_ext(pathSplit[1,2])
   pathName <- pathSplit[1,1]
 
-  fileContent <- read_delim(args[[i]], delim = "\t") %>%
+  fileContent <- read_delim(args[[i]], delim = "\t",
+                            col_types = cols(.default = col_double(), ID = col_character())) %>%
     separate(col = 1, into = c("ID", "seq"), sep = "#seq:", remove = TRUE)
 
   sampleID <- sampleSheetSamples %>% filter(Filename == curDataSet)

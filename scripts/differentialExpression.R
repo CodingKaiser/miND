@@ -109,6 +109,20 @@ if (nrow(sampleSheetContrast) > 0) {
     # remove genes with 0 reads in all samples
     reads <- reads[rowSums(reads) > 0, ]
 
+    # edgeR's TMM normalisation (calcNormFactors) cannot handle a sample with an
+    # empty library; it produces a NaN factor and aborts. This happens when all of
+    # a sample's reads are spike-ins, which are removed above. Detect such samples
+    # and skip the whole contrast (removing its partial output directory so the
+    # report does not pick it up) rather than crashing the entire workflow.
+    libSizes <- colSums(reads)
+    if (any(libSizes == 0)) {
+      warning("Skipping contrast ", contrastLine$GroupA, " vs ", contrastLine$GroupB,
+              ": sample(s) with zero library size after spike-in removal (",
+              paste(names(libSizes)[libSizes == 0], collapse = ", "), ").")
+      unlink(contrastOutDir, recursive = TRUE)
+      next
+    }
+
     reads %>%
       rownames_to_column("genes") %>%
       write_delim(paste0(contrastOutDir, "deRawReads.csv"), delim = "\t")
