@@ -602,6 +602,21 @@ for(i in 1:nrow(spikeins)) { # iterate over each row = sample
     miRNAPredConcPI %<>% add_column(!!rownames(sampleSpikeins) := NA)
 
   } else {
+    if (nrow(sampleReads) == 0) {
+      spikeInStats %<>% add_row(
+        ID = rownames(sampleSpikeins),
+        spikeInsDetected = spikeInsDetected,
+        miRNAsInRange = 0, intercept = NA, slope = NA, rsq = NA,
+        qc = "failed"
+      )
+      miRNAPredConc %<>% add_column(!!rownames(sampleSpikeins) := NA)
+      miRNAPredPI %<>% add_column(!!rownames(sampleSpikeins) := NA)
+      miRNAPredConcPI %<>% add_column(!!rownames(sampleSpikeins) := NA)
+      myplotsOne[[i]] <- NULL
+      myplotsTwo[[i]] <- NULL
+      myplotsThree[[i]] <- NULL
+      next
+    }
     df <- cbind(as.vector(sampleSpikeins) %>% unlist, as.vector(spikeinFinalConcentrations) %>% unlist) %>%
       as_tibble()
 
@@ -650,6 +665,7 @@ for(i in 1:nrow(spikeins)) { # iterate over each row = sample
       mutate(perc = n/sum(n))
 
     miRNAsRatioInSpikeInRange <- sampleReadsStats %>% filter(cat=="in range") %>% select("perc") %>% as.numeric()
+    if (length(miRNAsRatioInSpikeInRange) == 0 || is.na(miRNAsRatioInSpikeInRange)) miRNAsRatioInSpikeInRange <- 0
 
     qcResult <- "passed"
     if(qc.spikeInsMissing > 0) {

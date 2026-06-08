@@ -234,7 +234,17 @@ if (nrow(sampleSheetContrast) > 0) {
       }
     }
 
-    runDe(reads, groupVector, pairingVector)
+    skipContrast <- FALSE
+    tryCatch(
+      runDe(reads, groupVector, pairingVector),
+      error = function(e) {
+        warning("Skipping contrast ", contrastLine$GroupA, " vs ", contrastLine$GroupB,
+                ": could not estimate dispersions (", conditionMessage(e), ").")
+        unlink(contrastOutDir, recursive = TRUE)
+        skipContrast <<- TRUE
+      }
+    )
+    if (skipContrast) next
     indepFiltering(reads.cpm)
 
     filtered.results <- unfiltered.results
@@ -272,7 +282,16 @@ if (nrow(sampleSheetContrast) > 0) {
 
       # run DE again with basic filtered data
       if(nrow(reads) > 1) {
-        runDe(reads, groupVector, pairingVector)
+        tryCatch(
+          runDe(reads, groupVector, pairingVector),
+          error = function(e) {
+            warning("Skipping contrast ", contrastLine$GroupA, " vs ", contrastLine$GroupB,
+                    ": could not estimate dispersions after pre-filtering (", conditionMessage(e), ").")
+            unlink(contrastOutDir, recursive = TRUE)
+            skipContrast <<- TRUE
+          }
+        )
+        if (skipContrast) next
         indepFiltering(reads.cpm)
       } else {
         unlink(paste0(contrastOutDir, "dePrefilteringStats.csv"))
